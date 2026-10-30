@@ -1,29 +1,26 @@
 import { useCallback, useRef, useState } from 'react'
+import { Link } from 'react-router'
 import { AdvancedImage } from '@cloudinary/react'
 import type { AnalyzeResponse } from '../../shared/analyze'
 import { UploadWidget, type CloudinaryUploadResult } from '../cloudinary/UploadWidget'
+import { ListingForm } from '../components/ListingForm'
+import { ErrorState, Spinner } from '../components/states'
 import { analyzeFlyer } from '../lib/analyze'
 import { previewImage } from '../lib/cloudinary'
-import { ErrorState, Spinner } from '../components/states'
 
 type Analysis = { state: 'idle' } | { state: 'analyzing' } | { state: 'done'; result: AnalyzeResponse }
-
-const FIELD_LABELS = {
-  title: 'Title',
-  eventDate: 'Date and time',
-  location: 'Location',
-  contact: 'Contact',
-} as const
 
 export function SubmitPage() {
   const [upload, setUpload] = useState<CloudinaryUploadResult | null>(null)
   const [uploadError, setUploadError] = useState<string | null>(null)
   const [analysis, setAnalysis] = useState<Analysis>({ state: 'idle' })
+  const [submitted, setSubmitted] = useState(false)
   const latestUpload = useRef<string | null>(null)
 
   const handleUpload = useCallback(async (result: CloudinaryUploadResult) => {
     setUpload(result)
     setUploadError(null)
+    setSubmitted(false)
     setAnalysis({ state: 'analyzing' })
     latestUpload.current = result.public_id
     const analyzed = await analyzeFlyer(result.public_id)
@@ -33,11 +30,45 @@ export function SubmitPage() {
 
   const handleError = useCallback((err: Error) => setUploadError(err.message), [])
 
+  function startOver() {
+    latestUpload.current = null
+    setUpload(null)
+    setAnalysis({ state: 'idle' })
+    setSubmitted(false)
+  }
+
+  if (submitted) {
+    return (
+      <section className="mx-auto max-w-2xl text-center" aria-live="polite">
+        <h1 className="text-2xl font-bold">Thank you!</h1>
+        <p className="mt-3 text-stone-700">
+          Your listing was submitted. It will appear once it has been reviewed by a moderator.
+        </p>
+        <div className="mt-6 flex justify-center gap-3">
+          <button
+            type="button"
+            onClick={startOver}
+            className="rounded-lg bg-indigo-600 px-5 py-3 font-medium text-white hover:bg-indigo-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+          >
+            Add another flyer
+          </button>
+          <Link
+            to="/"
+            className="rounded-lg border border-stone-300 px-5 py-3 font-medium hover:bg-stone-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+          >
+            Browse listings
+          </Link>
+        </div>
+      </section>
+    )
+  }
+
   return (
-    <section className="mx-auto max-w-2xl">
+    <section className="mx-auto max-w-3xl">
       <h1 className="text-2xl font-bold">Add a flyer</h1>
       <p className="mt-2 text-stone-600">
-        Take or upload a photo of a paper flyer. We'll read it and fill in what we can.
+        Take or upload a photo of a paper flyer. We'll read it and fill in what we can. You can edit everything before
+        submitting.
       </p>
 
       <div className="mt-6">
@@ -56,16 +87,29 @@ export function SubmitPage() {
       )}
 
       {upload && (
-        <div className="mt-8 grid gap-6 sm:grid-cols-[200px_1fr]">
-          <AdvancedImage
-            cldImg={previewImage(upload.public_id, 400)}
-            alt="Your uploaded flyer"
-            className="w-full rounded-lg border border-stone-200"
-          />
+        <div className="mt-8 grid gap-8 md:grid-cols-[240px_1fr]">
+          <div>
+            <AdvancedImage
+              cldImg={previewImage(upload.public_id, 480)}
+              alt="Your uploaded flyer"
+              className="w-full rounded-lg border border-stone-200"
+            />
+          </div>
 
           <div aria-live="polite">
             {analysis.state === 'analyzing' && <Spinner label="Reading your flyer…" />}
-            {analysis.state === 'done' && <AnalysisResult result={analysis.result} />}
+            {analysis.state === 'done' && (
+              <div className="space-y-4">
+                <AnalysisNotes result={analysis.result} />
+                {/* key remounts the form with fresh prefill when a new photo is uploaded */}
+                <ListingForm
+                  key={upload.public_id}
+                  upload={upload}
+                  analysis={analysis.result}
+                  onSubmitted={() => setSubmitted(true)}
+                />
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -73,41 +117,21 @@ export function SubmitPage() {
   )
 }
 
-function AnalysisResult({ result }: { result: AnalyzeResponse }) {
-  const found = (Object.keys(FIELD_LABELS) as (keyof typeof FIELD_LABELS)[]).filter(
-    (k) => result.suggestions[k],
-  )
-
+function AnalysisNotes({ result }: { result: AnalyzeResponse }) {
+  const prefilled = result.status.ocr === 'ok'
   return (
-    <div className="space-y-4">
-      {result.status.ocr !== 'ok' && (
-        <p className="rounded-lg bg-amber-50 px-4 py-3 text-amber-900">
-          We couldn't read the flyer automatically. Please fill in the details.
-        </p>
-      )}
-
-      {found.length > 0 && (
-        <dl className="space-y-2">
-          {found.map((k) => (
-            <div key={k}>
-              <dt className="text-sm font-medium text-stone-500">{FIELD_LABELS[k]}</dt>
-              <dd>{result.suggestions[k]}</dd>
-            </div>
-          ))}
-        </dl>
-      )}
-
-      <div>
-        <h2 className="text-sm font-medium text-stone-500">Suggested image description</h2>
-        <p>{result.altText ?? 'No suggestion. You will be asked to describe the image.'}</p>
-      </div>
-
+    <>
+      <p className={`rounded-lg px-4 py-3 ${prefilled ? 'bg-emerald-50 text-emerald-900' : 'bg-amber-50 text-amber-900'}`}>
+        {prefilled
+          ? 'We filled in what we could read. Please check each field.'
+          : "We couldn't read the flyer automatically. Please fill in the details."}
+      </p>
       {result.ocrText && (
         <details className="rounded-lg border border-stone-200 p-3">
           <summary className="cursor-pointer text-sm font-medium">What we read</summary>
           <pre className="mt-2 text-sm whitespace-pre-wrap text-stone-700">{result.ocrText}</pre>
         </details>
       )}
-    </div>
+    </>
   )
 }

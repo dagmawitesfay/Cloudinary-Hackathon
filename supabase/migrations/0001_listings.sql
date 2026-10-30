@@ -14,7 +14,7 @@ create table public.listings (
   event_date       timestamptz,
   location_text    text check (char_length(location_text) <= 300),
   contact          text check (char_length(contact) <= 200),
-  image_public_id  text not null check (image_public_id ~ '^flyers/[A-Za-z0-9_\-/]+$'),
+  image_public_id  text not null check (image_public_id ~ '^community-hackathon/[A-Za-z0-9_\-/]+$'),
   image_width      int,
   image_height     int,
   image_alt        text not null check (char_length(image_alt) between 5 and 300),

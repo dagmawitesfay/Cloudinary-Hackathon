@@ -18,5 +18,6 @@ export interface AnalyzeResponse {
   status: { ocr: AddonStatus; caption: AddonStatus }
 }
 
-/** Uploads land here (set by the upload preset). Also enforced in the DB. */
-export const FLYER_PUBLIC_ID = /^flyers\/[A-Za-z0-9_\-/]{1,240}$/
+/** Uploads land under this public_id prefix (set by the upload preset). Also enforced in the DB. */
+export const FLYER_PREFIX = 'community-hackathon/'
+export const FLYER_PUBLIC_ID = /^community-hackathon\/[A-Za-z0-9_\-/]{1,230}$/

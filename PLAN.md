@@ -97,7 +97,7 @@ I'm leaving out the `cloudinary` Node SDK on purpose. `/api/analyze` makes one A
 
 ### Upload preset (you create it in the console; unsigned)
 - Signing mode: **Unsigned**
-- Asset folder: `flyers`
+- Asset folder: `community-hackathon` (used as the public ID prefix)
 - Allowed formats: `jpg, jpeg, png, webp, heic`
 - Max file size: enforced client-side by the widget (`maxFileSize: 10_000_000`) and with an incoming transformation `c_limit,w_2500,h_2500` so oversized photos are scaled down before storage
 - Unique filename: on; overwrite: off
@@ -117,7 +117,7 @@ Responsive images use `srcset` widths of 320/480/768/1024, plus `loading="lazy"`
 ### Analyze flow
 1. The widget returns `public_id`, `width`, `height` to the client.
 2. The client sends `POST /api/analyze { publicId }`.
-3. The function validates that `publicId` starts with `flyers/` and matches `^[\w\-/]+$`.
+3. The function validates that `publicId` starts with `community-hackathon/` and matches `^[\w\-/]+$`.
 4. It makes **one** Admin API update call:
    `POST https://api.cloudinary.com/v1_1/<cloud>/resources/image/upload/<public_id>` with `ocr=adv_ocr&detection=captioning`.
 5. It reads `info.ocr.adv_ocr.data[0].textAnnotations[0].description` (full text) and `info.detection.captioning.data.caption`.
@@ -157,7 +157,7 @@ create table public.listings (
   event_date       timestamptz,
   location_text    text check (char_length(location_text) <= 300),
   contact          text check (char_length(contact) <= 200),
-  image_public_id  text not null check (image_public_id ~ '^flyers/[A-Za-z0-9_\-/]+$'),
+  image_public_id  text not null check (image_public_id ~ '^community-hackathon/[A-Za-z0-9_\-/]+$'),
   image_width      int,
   image_height     int,
   image_alt        text not null check (char_length(image_alt) between 5 and 300),
@@ -256,7 +256,7 @@ Local dev: `vercel dev` runs both Vite and `/api`. Plain `npm run dev` runs the 
 | R2 | **AI Content Analysis (captioning) isn't enabled.** It's also a separate add-on. | No alt text suggestion | A required manual alt-text field with helper text and an example. Submit is never blocked on AI. |
 | R3 | OCR quality on angled or low-light phone photos | Bad prefill | Every field stays editable. Raw OCR text is shown in a collapsible "What we read" panel so users can copy from it. Stretch: try `adv_ocr:document`. |
 | R4 | **Generative fill cost.** `b_gen_fill` is about 50 transformation credits per derived image, multiplied by each `srcset` width. | Credit burn | Use gen fill only for odd aspect ratios, with a small fixed set of widths. A cheap fallback (`c_pad,b_auto` or `b_white`) sits behind one constant in `cloudinary.ts` so it's a one-line switch. |
-| R5 | `/api/analyze` abuse: anyone can call it with any public_id and burn add-on quota | Cost | Only `flyers/` public_ids are accepted, with strict regex validation. The Admin API also returns 404 for assets that don't exist. Stretch: a rate limit, or check that `created_at` is less than an hour old. |
+| R5 | `/api/analyze` abuse: anyone can call it with any public_id and burn add-on quota | Cost | Only `community-hackathon/` public_ids are accepted, with strict regex validation. The Admin API also returns 404 for assets that don't exist. Stretch: a rate limit, or check that `created_at` is less than an hour old. |
 | R6 | Unsigned preset abuse (spam uploads) | Storage | Format and size limits on the preset. Moderators gate visibility. Stretch: enable Cloudinary moderation on the preset. |
 | R7 | RLS mistakes expose pending rows or let anon approve | Integrity | A moderators allow-list (not "any authenticated user"), column grants, and an explicit verification step in Phase 5. Also **disable public sign-ups** in Supabase Auth. |
 | R8 | Share-card text overlay breaks on special characters (`,` `/` `%` emoji) | Broken image | Escape through the url-gen `text()` source (double-encode `,` and `/`), cap lengths, strip emoji. Fall back to the plain hero image if the URL gets too long. |

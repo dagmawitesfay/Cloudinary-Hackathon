@@ -1,6 +1,6 @@
 // POST /api/analyze { publicId } → OCR + AI caption suggestions for an uploaded flyer.
 // Always answers 200 with whatever it could get; the form never depends on this.
-import { FLYER_PUBLIC_ID, type AddonStatus, type AnalyzeResponse } from '../shared/analyze.js'
+import { FLYER_PREFIX, FLYER_PUBLIC_ID, type AddonStatus, type AnalyzeResponse } from '../shared/analyze.js'
 import { isConfigured, updateWithAddons, type AnalysisInfo } from './_lib/cloudinaryAdmin.js'
 import { parseFlyer } from './_lib/parseFlyer.js'
 
@@ -28,7 +28,7 @@ export async function POST(request: Request): Promise<Response> {
   const body = (await request.json().catch(() => null)) as { publicId?: unknown } | null
   const publicId = body?.publicId
   if (typeof publicId !== 'string' || !FLYER_PUBLIC_ID.test(publicId)) {
-    return Response.json({ error: 'publicId must be an uploaded flyer (flyers/...)' }, { status: 400 })
+    return Response.json({ error: `publicId must be an uploaded flyer (${FLYER_PREFIX}...)` }, { status: 400 })
   }
   if (!isConfigured()) {
     console.error('analyze: Cloudinary credentials are not set')

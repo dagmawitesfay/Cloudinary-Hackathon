@@ -90,3 +90,44 @@ export async function fetchListing(id: string): Promise<Listing | null> {
   }
   return data as unknown as Listing | null
 }
+
+// ---- Moderation (requires a signed-in moderator; RLS enforces it) ----
+
+/** Oldest first, so nothing waits forever. */
+export async function fetchPendingListings(): Promise<Listing[]> {
+  if (!isSupabaseConfigured) throw new Error('The database is not configured.')
+  const { data, error } = await supabase
+    .from('listings')
+    .select(PUBLIC_COLUMNS)
+    .eq('status', 'pending')
+    .order('created_at', { ascending: true })
+    .limit(100)
+  if (error) {
+    console.error('fetchPendingListings failed:', error)
+    throw new Error('We could not load the review queue. Please try again.')
+  }
+  return (data ?? []) as unknown as Listing[]
+}
+
+/** Approve, reject, or put back to pending (undo). Throws unless exactly one row changed. */
+export async function setListingStatus(
+  id: string,
+  status: 'approved' | 'rejected' | 'pending',
+  reviewerId: string,
+): Promise<void> {
+  const { data, error } = await supabase
+    .from('listings')
+    .update({
+      status,
+      reviewed_at: status === 'pending' ? null : new Date().toISOString(),
+      reviewed_by: status === 'pending' ? null : reviewerId,
+    })
+    .eq('id', id)
+    .select('id')
+  if (error) {
+    console.error('setListingStatus failed:', error)
+    throw new Error('We could not update that listing. Please try again.')
+  }
+  // RLS filters rows silently, so "no error" alone doesn't mean it worked.
+  if (!data?.length) throw new Error('That listing could not be updated. You may not have moderator access.')
+}

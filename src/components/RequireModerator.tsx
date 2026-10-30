@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactNode } from 'react'
 import { Navigate } from 'react-router'
 import { supabase } from '../lib/supabase'
 import { useSession } from '../hooks/useSession'
+import { buttonSecondary } from '../lib/ui'
 import { ErrorState, Spinner } from './states'
 
 /** Redirects to login unless the user is signed in AND in the moderators table. */
@@ -22,6 +23,15 @@ export function RequireModerator({ children }: { children: ReactNode }) {
   if (!session) return <Navigate to="/mod/login" replace />
   if (error) return <ErrorState message={`Could not verify moderator access: ${error}`} />
   if (allowed === null) return <Spinner label="Checking access…" />
-  if (!allowed) return <ErrorState message="This account is not a moderator." />
+  if (!allowed) {
+    return (
+      <div className="space-y-3">
+        <ErrorState message="This account is not a moderator." />
+        <button type="button" onClick={() => supabase.auth.signOut()} className={buttonSecondary}>
+          Sign out
+        </button>
+      </div>
+    )
+  }
   return <>{children}</>
 }

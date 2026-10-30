@@ -11,7 +11,15 @@ export async function submitListing(listing: NewListing): Promise<void> {
   }
   const { error } = await supabase.from('listings').insert(listing)
   if (error) {
-    console.error('submitListing failed:', error)
-    throw new Error('We could not save your listing. Please check your connection and try again.')
+    // Full Postgres/PostgREST detail (code, details, hint) for debugging.
+    console.error('submitListing failed:', {
+      code: error.code,
+      message: error.message,
+      details: error.details,
+      hint: error.hint,
+    })
+    const friendly = 'We could not save your listing. Please check your connection and try again.'
+    // In dev, show the real reason right in the form.
+    throw new Error(import.meta.env.DEV ? `${friendly} [dev: ${error.code ?? ''} ${error.message}]` : friendly)
   }
 }

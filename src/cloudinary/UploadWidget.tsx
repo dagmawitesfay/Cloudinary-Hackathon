@@ -27,6 +27,7 @@ interface CloudinaryWidgetResult {
 
 interface CloudinaryWidgetError {
   message?: string;
+  statusText?: string;
 }
 
 declare global {
@@ -35,10 +36,20 @@ declare global {
       createUploadWidget: (
         config: Record<string, unknown>,
         callback: (error: CloudinaryWidgetError | null, result: CloudinaryWidgetResult | null) => void
-      ) => { open: () => void };
+      ) => { open: () => void; destroy?: () => void };
     };
   }
 }
+
+// Flyer photos only. Format/size are also enforced by the upload preset.
+const WIDGET_OPTIONS = {
+  sources: ['local', 'camera'],
+  multiple: false,
+  maxFiles: 1,
+  resourceType: 'image',
+  clientAllowedFormats: ['jpg', 'jpeg', 'png', 'webp', 'heic'],
+  maxFileSize: 10_000_000,
+};
 
 export function UploadWidget({
   onUploadSuccess,
@@ -46,9 +57,17 @@ export function UploadWidget({
   buttonText = 'Upload Image',
   className = '',
 }: UploadWidgetProps) {
-  const widgetRef = useRef<{ open: () => void } | null>(null);
+  const widgetRef = useRef<{ open: () => void; destroy?: () => void } | null>(null);
+  // Latest callbacks in refs so the widget is created once, not on every render.
+  const onSuccessRef = useRef(onUploadSuccess);
+  const onErrorRef = useRef(onUploadError);
   const [isReady, setIsReady] = useState(false);
   const [scriptError, setScriptError] = useState(false);
+
+  useEffect(() => {
+    onSuccessRef.current = onUploadSuccess;
+    onErrorRef.current = onUploadError;
+  }, [onUploadSuccess, onUploadError]);
 
   useEffect(() => {
     let poll: ReturnType<typeof setInterval> | null = null;
@@ -69,19 +88,16 @@ export function UploadWidget({
         {
           cloudName: import.meta.env.VITE_CLOUDINARY_CLOUD_NAME,
           uploadPreset: uploadPreset || undefined,
-          sources: ['local', 'camera', 'url'],
-          multiple: false,
+          ...WIDGET_OPTIONS,
         },
         (error: CloudinaryWidgetError | null, result: CloudinaryWidgetResult | null) => {
           if (error) {
-            console.error('Upload error:', error);
-            onUploadError?.(new Error(error.message || 'Upload failed'));
+            onErrorRef.current?.(new Error(error.message || error.statusText || 'Upload failed'));
             return;
           }
 
           if (result && result.event === 'success') {
-            console.log('Upload success:', result.info);
-            onUploadSuccess?.(result.info);
+            onSuccessRef.current?.(result.info);
           }
         }
       );
@@ -123,22 +139,20 @@ export function UploadWidget({
       mounted = false;
       if (poll) clearInterval(poll);
       if (timeout) clearTimeout(timeout);
+      widgetRef.current?.destroy?.();
+      widgetRef.current = null;
     };
-  }, [onUploadSuccess, onUploadError]);
+  }, []);
 
   const handleClick = () => {
-    if (widgetRef.current) {
-      widgetRef.current.open();
-    } else if (!scriptError) {
-      console.warn('Upload widget is still loading, please try again.');
-    }
+    widgetRef.current?.open();
   };
 
   if (scriptError) {
     return (
-      <div style={{ color: '#dc2626', fontSize: '0.875rem' }}>
-        Upload widget failed to load. Please refresh the page or check your network connection.
-      </div>
+      <p role="alert" className="text-sm text-red-700">
+        The upload tool failed to load. Please refresh the page or check your connection.
+      </p>
     );
   }
 
@@ -147,27 +161,15 @@ export function UploadWidget({
       type="button"
       onClick={handleClick}
       disabled={!isReady}
-      className={className}
-      style={{
-        padding: '0.75rem 1.5rem',
-        fontSize: '1rem',
-        fontWeight: 500,
-        color: 'white',
-        backgroundColor: isReady ? '#6366f1' : '#9ca3af',
-        border: 'none',
-        borderRadius: '0.5rem',
-        cursor: isReady ? 'pointer' : 'wait',
-        transition: 'background-color 0.2s',
-        opacity: isReady ? 1 : 0.7,
-      }}
-      onMouseEnter={(e) => {
-        if (isReady) e.currentTarget.style.backgroundColor = '#4f46e5';
-      }}
-      onMouseLeave={(e) => {
-        if (isReady) e.currentTarget.style.backgroundColor = '#6366f1';
-      }}
+      aria-busy={!isReady}
+      className={
+        'rounded-lg bg-indigo-600 px-5 py-3 font-medium text-white hover:bg-indigo-700 ' +
+        'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 ' +
+        'disabled:cursor-wait disabled:bg-stone-400 ' +
+        className
+      }
     >
-      {isReady ? buttonText : 'Loading...'}
+      {isReady ? buttonText : 'Loading…'}
     </button>
   );
 }

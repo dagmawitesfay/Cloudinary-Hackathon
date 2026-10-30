@@ -3,6 +3,13 @@
 
 create type listing_status as enum ('pending', 'approved', 'rejected');
 
+-- Generated columns may only use IMMUTABLE functions. array_to_string is STABLE,
+-- so wrap it; joining a text[] with a space doesn't depend on any setting.
+create or replace function public.tags_to_text(tags text[])
+returns text
+language sql immutable parallel safe
+as $$ select coalesce(array_to_string(tags, ' '), '') $$;
+
 create table public.listings (
   id               uuid primary key default gen_random_uuid(),
   created_at       timestamptz not null default now(),
@@ -23,9 +30,9 @@ create table public.listings (
   reviewed_at      timestamptz,
   reviewed_by      uuid references auth.users(id),
   search tsvector generated always as (
-    setweight(to_tsvector('english', coalesce(title, '')), 'A') ||
-    setweight(to_tsvector('english', coalesce(description, '') || ' ' || coalesce(location_text, '')), 'B') ||
-    setweight(to_tsvector('english', array_to_string(tags, ' ')), 'C')
+    setweight(to_tsvector('english'::regconfig, coalesce(title, '')), 'A') ||
+    setweight(to_tsvector('english'::regconfig, coalesce(description, '') || ' ' || coalesce(location_text, '')), 'B') ||
+    setweight(to_tsvector('english'::regconfig, public.tags_to_text(tags)), 'C')
   ) stored
 );
 

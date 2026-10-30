@@ -167,9 +167,9 @@ create table public.listings (
   reviewed_by      uuid references auth.users(id),
   -- full-text search column
   search tsvector generated always as (
-    setweight(to_tsvector('english', coalesce(title,'')), 'A') ||
-    setweight(to_tsvector('english', coalesce(description,'') || ' ' || coalesce(location_text,'')), 'B') ||
-    setweight(to_tsvector('english', array_to_string(tags, ' ')), 'C')
+    setweight(to_tsvector('english'::regconfig, coalesce(title,'')), 'A') ||
+    setweight(to_tsvector('english'::regconfig, coalesce(description,'') || ' ' || coalesce(location_text,'')), 'B') ||
+    setweight(to_tsvector('english'::regconfig, public.tags_to_text(tags)), 'C')  -- immutable wrapper
   ) stored
 );
 

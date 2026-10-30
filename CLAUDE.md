@@ -71,6 +71,11 @@ image_alt, ocr_raw_text, tags (text[]).
 Row Level Security: anyone can insert with status `pending` and read `approved`;
 only authenticated moderators can read pending rows and update status.
 
+## Design
+All UI follows `DESIGN.md` (dark theme, coral accent `#ff6b35`, Bebas Neue + Inter,
+grain overlay, bordered cards). Read it before building or changing any page or
+component, and use the design tokens instead of hard-coded colors.
+
 ## Working rules
 
 - Work in the phase order from the kickoff prompt. Stop at the end of each phase and summarize.

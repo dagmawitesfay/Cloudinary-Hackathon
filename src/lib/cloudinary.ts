@@ -7,6 +7,8 @@ import { format, quality } from '@cloudinary/url-gen/actions/delivery'
 import { generativeFill } from '@cloudinary/url-gen/qualifiers/background'
 import { autoGravity } from '@cloudinary/url-gen/qualifiers/gravity'
 import { cld } from '../cloudinary/config'
+import { formatShareDate } from './format'
+import { shareCardTransformation, SHARE_HEIGHT, SHARE_WIDTH } from './shareCardLayers'
 
 export const CARD_ASPECT = 3 / 4
 export const CARD_WIDTHS = [320, 480, 768] as const
@@ -70,4 +72,33 @@ export const HERO_WIDTHS = [600, 900, 1200] as const
 /** Responsive `src`/`srcSet` for the detail page. */
 export function heroImageSet(publicId: string): ImageSet {
   return toSet(HERO_WIDTHS, (w) => heroImage(publicId, w), 900)
+}
+
+export const SHARE_SIZE = { width: SHARE_WIDTH, height: SHARE_HEIGHT } as const
+
+interface ShareSource {
+  image_public_id: string
+  title: string
+  event_date: string | null
+  location_text: string | null
+}
+
+/**
+ * Share card: the flyer beside the listing's title, date and place, built with
+ * Cloudinary text overlays (candidate named transformation: `share_card`).
+ * The on-page preview and shared link use f_auto; the exported file uses f_jpg
+ * so a download or attachment is a real JPEG on every platform, never AVIF/WebP.
+ */
+export function shareCardUrl(listing: ShareSource, forExport = false): string {
+  const img = cld.image(listing.image_public_id).addTransformation(
+    shareCardTransformation({
+      title: listing.title,
+      date: formatShareDate(listing.event_date),
+      location: listing.location_text,
+    }),
+  )
+  return img
+    .delivery(forExport ? format('jpg') : format('auto'))
+    .delivery(quality('auto'))
+    .toURL()
 }

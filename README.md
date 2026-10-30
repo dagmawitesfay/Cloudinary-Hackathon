@@ -2,9 +2,25 @@
 
 **Snap a flyer, and it becomes a listing anyone in the community can find.**
 
-**Live site:** `https://YOUR-APP.vercel.app` _(placeholder: replace after the first deploy)_
-
 Paper flyers for clinics, food drives, ESL classes, and community events are easy to miss and impossible to search. This app turns a photo of one into a clean, accessible, searchable listing. Cloudinary reads the flyer, writes the alt text, delivers every image, and builds a shareable social card.
+
+## Demo
+
+![Community Flyer Directory demo screenshot](./public/images/community.png)
+
+## Contents
+
+- [How it works](#how-it-works)
+- [Tech stack](#tech-stack)
+- [Setup](#setup)
+- [Environment variables](#environment-variables)
+- [Scripts](#scripts)
+- [Project layout](#project-layout)
+- [How we use Cloudinary](#how-we-use-cloudinary)
+- [Security](#security)
+- [Accessibility](#accessibility)
+- [Deploy checklist](#deploy-checklist-vercel)
+- [Known limits and ideas](#known-limits-and-ideas)
 
 ## How it works
 

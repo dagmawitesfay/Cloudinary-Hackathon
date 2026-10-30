@@ -29,3 +29,7 @@ server/.env
 *.njsproj
 *.sln
 *.sw?
+
+# Vercel
+.vercel
+.env*.local

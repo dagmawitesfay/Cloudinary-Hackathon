@@ -1,6 +1,8 @@
+import { useTitle } from '../hooks/useTitle'
 import { pageTitle } from '../lib/ui'
 
 export function NotFoundPage() {
+  useTitle('Page not found')
   return (
     <section>
       <h1 className={pageTitle}>Page not found</h1>

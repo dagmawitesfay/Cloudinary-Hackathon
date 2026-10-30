@@ -3,17 +3,17 @@ import { Cloudinary } from '@cloudinary/url-gen';
 // Get environment variables - Vite requires VITE_ prefix
 const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
 
-if (!cloudName) {
-  throw new Error(
-    'VITE_CLOUDINARY_CLOUD_NAME is not set. Please create a .env file with your Cloudinary cloud name.\n' +
-    'See .env.example for reference.'
-  );
+export const isCloudinaryConfigured = Boolean(cloudName);
+
+if (!isCloudinaryConfigured) {
+  // Don't throw at import time: that blanks the whole page. The layout shows a banner instead.
+  console.error('VITE_CLOUDINARY_CLOUD_NAME is not set. See .env.example.');
 }
 
 // Create and export Cloudinary instance
 export const cld = new Cloudinary({
   cloud: {
-    cloudName: cloudName,
+    cloudName: cloudName || 'missing-cloud-name',
   },
 });
 

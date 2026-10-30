@@ -4,6 +4,7 @@ import { FilterPills } from '../components/FilterPills'
 import { ListingCard } from '../components/ListingCard'
 import { EmptyState, ErrorState, Spinner } from '../components/states'
 import { useListings } from '../hooks/useListings'
+import { useTitle } from '../hooks/useTitle'
 import { CATEGORIES } from '../lib/categories'
 import type { DateFilter } from '../lib/listings'
 import { buttonSecondary, input, inputOk } from '../lib/ui'
@@ -20,6 +21,7 @@ const WHEN_OPTIONS: { value: DateFilter; label: string }[] = [
 const isDateFilter = (v: string | null): v is DateFilter => WHEN_OPTIONS.some((o) => o.value === v)
 
 export function HomePage() {
+  useTitle()
   // Filters live in the URL so a search can be shared and survives refresh.
   const [params, setParams] = useSearchParams()
   const q = params.get('q') ?? ''
@@ -85,7 +87,12 @@ export function HomePage() {
         <FilterPills label="When" options={WHEN_OPTIONS} value={when} onChange={(v) => update({ when: v })} />
       </div>
 
-      <div className="mt-10" aria-live="polite" aria-busy={loading}>
+      {/* Screen readers hear a short status, not the whole grid re-read on every change. */}
+      <p role="status" className="sr-only">
+        {loading ? 'Loading listings' : data ? `${data.length} ${data.length === 1 ? 'listing' : 'listings'} found` : ''}
+      </p>
+
+      <div className="mt-10">
         {loading && <Spinner label="Loading listings…" />}
 
         {error && (

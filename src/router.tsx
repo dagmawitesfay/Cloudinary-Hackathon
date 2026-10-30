@@ -1,30 +1,20 @@
 import { createBrowserRouter } from 'react-router'
+import { ErrorPage } from './components/ErrorPage'
 import { Layout } from './components/Layout'
-import { RequireModerator } from './components/RequireModerator'
 import { HomePage } from './pages/HomePage'
-import { SubmitPage } from './pages/SubmitPage'
-import { ListingPage } from './pages/ListingPage'
-import { LoginPage } from './pages/LoginPage'
-import { ModQueuePage } from './pages/ModQueuePage'
-import { NotFoundPage } from './pages/NotFoundPage'
 
+// Everything except Browse loads on demand to keep the first download small.
 export const router = createBrowserRouter([
   {
     element: <Layout />,
+    errorElement: <ErrorPage />,
     children: [
       { path: '/', element: <HomePage /> },
-      { path: '/submit', element: <SubmitPage /> },
-      { path: '/listing/:id', element: <ListingPage /> },
-      { path: '/mod/login', element: <LoginPage /> },
-      {
-        path: '/mod',
-        element: (
-          <RequireModerator>
-            <ModQueuePage />
-          </RequireModerator>
-        ),
-      },
-      { path: '*', element: <NotFoundPage /> },
+      { path: '/submit', lazy: async () => ({ Component: (await import('./pages/SubmitPage')).SubmitPage }) },
+      { path: '/listing/:id', lazy: async () => ({ Component: (await import('./pages/ListingPage')).ListingPage }) },
+      { path: '/mod/login', lazy: async () => ({ Component: (await import('./pages/LoginPage')).LoginPage }) },
+      { path: '/mod', lazy: async () => ({ Component: (await import('./pages/ModPage')).ModPage }) },
+      { path: '*', lazy: async () => ({ Component: (await import('./pages/NotFoundPage')).NotFoundPage }) },
     ],
   },
 ])

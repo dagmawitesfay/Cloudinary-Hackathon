@@ -2,10 +2,12 @@ import { useState, type FormEvent } from 'react'
 import { Navigate } from 'react-router'
 import { ErrorState, Spinner } from '../components/states'
 import { useSession } from '../hooks/useSession'
+import { useTitle } from '../hooks/useTitle'
 import { isSupabaseConfigured, supabase } from '../lib/supabase'
 import { buttonPrimary, input, inputOk, muted, pageTitle, panel } from '../lib/ui'
 
 export function LoginPage() {
+  useTitle('Moderator login')
   const { session, loading } = useSession()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')

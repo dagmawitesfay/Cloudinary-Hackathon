@@ -4,6 +4,7 @@ import { CategoryBadge } from '../components/Badge'
 import { EmptyState, ErrorState, Spinner, SuccessAlert } from '../components/states'
 import { usePendingListings } from '../hooks/usePendingListings'
 import { useSession } from '../hooks/useSession'
+import { useTitle } from '../hooks/useTitle'
 import { cardImage, heroImage } from '../lib/cloudinary'
 import { formatEventDate } from '../lib/format'
 import { setListingStatus } from '../lib/listings'
@@ -18,6 +19,7 @@ interface Done {
 }
 
 export function ModQueuePage() {
+  useTitle('Review queue')
   const { session } = useSession()
   const { loading, data, error, retry } = usePendingListings()
   const [handled, setHandled] = useState<Set<string>>(new Set())

@@ -3,6 +3,7 @@ import { CategoryBadge } from '../components/Badge'
 import { ShareCard } from '../components/ShareCard'
 import { EmptyState, ErrorState, Spinner } from '../components/states'
 import { useListing } from '../hooks/useListings'
+import { useTitle } from '../hooks/useTitle'
 import { heroImageSet } from '../lib/cloudinary'
 import { formatEventDate } from '../lib/format'
 import { buttonSecondary, pageTitle } from '../lib/ui'
@@ -10,6 +11,7 @@ import { buttonSecondary, pageTitle } from '../lib/ui'
 export function ListingPage() {
   const { id } = useParams()
   const { loading, data: listing, error, retry } = useListing(id)
+  useTitle(listing?.title ?? (loading ? 'Loading listing' : 'Listing not found'))
 
   if (loading) return <Spinner label="Loading listing…" />
 

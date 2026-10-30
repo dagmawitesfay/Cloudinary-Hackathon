@@ -5,6 +5,7 @@ import type { AnalyzeResponse } from '../../shared/analyze'
 import { UploadWidget, type CloudinaryUploadResult } from '../cloudinary/UploadWidget'
 import { ListingForm } from '../components/ListingForm'
 import { ErrorState, Spinner, SuccessAlert } from '../components/states'
+import { useTitle } from '../hooks/useTitle'
 import { analyzeFlyer } from '../lib/analyze'
 import { previewImage } from '../lib/cloudinary'
 import { buttonPrimary, buttonSecondary, muted, note, pageTitle, panel } from '../lib/ui'
@@ -35,6 +36,7 @@ function CloudIcon() {
 }
 
 export function SubmitPage() {
+  useTitle('Add a flyer')
   const [upload, setUpload] = useState<CloudinaryUploadResult | null>(null)
   const [uploadError, setUploadError] = useState<string | null>(null)
   const [analysis, setAnalysis] = useState<Analysis>({ state: 'idle' })
@@ -121,7 +123,7 @@ export function SubmitPage() {
               </UploadWidget>
             </div>
 
-            <div aria-live="polite">
+            <div>
               {analysis.state === 'analyzing' && <Spinner label="Reading your flyer…" />}
               {analysis.state === 'done' && (
                 <div className="space-y-4">
@@ -147,7 +149,7 @@ function AnalysisNotes({ result }: { result: AnalyzeResponse }) {
   const prefilled = result.status.ocr === 'ok'
   return (
     <>
-      <p className={note}>
+      <p role="status" className={note}>
         {prefilled
           ? 'We filled these in from your flyer. Please check them.'
           : "We couldn't read the flyer automatically. Please fill in the details."}

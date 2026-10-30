@@ -1,5 +1,7 @@
-import { Link, NavLink, Outlet } from 'react-router'
+import { useEffect, useRef } from 'react'
+import { Link, NavLink, Outlet, useLocation } from 'react-router'
 import { buttonPrimary } from '../lib/ui'
+import { ConfigBanner } from './ConfigBanner'
 
 const navLink = ({ isActive }: { isActive: boolean }) =>
   `rounded-md px-1 py-1 text-sm font-medium underline-offset-8 transition-colors hover:text-muted ${
@@ -7,6 +9,21 @@ const navLink = ({ isActive }: { isActive: boolean }) =>
   }`
 
 export function Layout() {
+  const { pathname } = useLocation()
+  const mainRef = useRef<HTMLElement>(null)
+  const firstRender = useRef(true)
+
+  // After client-side navigation, move focus to the new page so keyboard and
+  // screen-reader users start at the top of it (the browser does this on real page loads).
+  useEffect(() => {
+    if (firstRender.current) {
+      firstRender.current = false
+      return
+    }
+    mainRef.current?.focus({ preventScroll: true })
+    window.scrollTo(0, 0)
+  }, [pathname])
+
   return (
     <div className="flex min-h-screen flex-col">
       <a
@@ -33,7 +50,8 @@ export function Layout() {
           </nav>
         </div>
       </header>
-      <main id="main" className="mx-auto w-full max-w-6xl flex-1 px-4 py-10">
+      <ConfigBanner />
+      <main id="main" ref={mainRef} tabIndex={-1} className="mx-auto w-full max-w-6xl flex-1 px-4 py-10 outline-none">
         <Outlet />
       </main>
       <footer className="border-t border-border py-6 text-center text-sm text-muted">

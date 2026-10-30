@@ -49,3 +49,25 @@ export function heroImage(publicId: string, width = 1200): CloudinaryImage {
 export function previewImage(publicId: string, width = 600): CloudinaryImage {
   return optimize(cld.image(publicId).resize(limitFit().width(width)))
 }
+
+interface ImageSet {
+  src: string
+  srcSet: string
+}
+
+const toSet = (widths: readonly number[], build: (w: number) => CloudinaryImage, fallback: number): ImageSet => ({
+  src: build(fallback).toURL(),
+  srcSet: widths.map((w) => `${build(w).toURL()} ${w}w`).join(', '),
+})
+
+/** Responsive `src`/`srcSet` for a listing card. */
+export function cardImageSet(publicId: string, dims: Dimensions = {}): ImageSet {
+  return toSet(CARD_WIDTHS, (w) => cardImage(publicId, w, dims), 480)
+}
+
+export const HERO_WIDTHS = [600, 900, 1200] as const
+
+/** Responsive `src`/`srcSet` for the detail page. */
+export function heroImageSet(publicId: string): ImageSet {
+  return toSet(HERO_WIDTHS, (w) => heroImage(publicId, w), 900)
+}

@@ -8,3 +8,5 @@ export const CATEGORIES = [
   { value: 'jobs', label: 'Jobs' },
   { value: 'other', label: 'Other' },
 ] as const
+
+export const categoryLabel = (value: string) => CATEGORIES.find((c) => c.value === value)?.label ?? 'Other'

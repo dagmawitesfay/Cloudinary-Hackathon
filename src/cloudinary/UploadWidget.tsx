@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { buttonPrimary } from '../lib/ui';
 import { uploadPreset } from './config';
 
 export interface CloudinaryUploadResult {
@@ -16,7 +17,9 @@ export interface CloudinaryUploadResult {
 interface UploadWidgetProps {
   onUploadSuccess?: (result: CloudinaryUploadResult) => void;
   onUploadError?: (error: Error) => void;
-  buttonText?: string;
+  /** Button contents. Defaults to plain text. */
+  children?: ReactNode;
+  /** Replaces the primary-button look, e.g. for the upload zone. */
   className?: string;
 }
 
@@ -54,8 +57,8 @@ const WIDGET_OPTIONS = {
 export function UploadWidget({
   onUploadSuccess,
   onUploadError,
-  buttonText = 'Upload Image',
-  className = '',
+  children = 'Upload Image',
+  className = buttonPrimary,
 }: UploadWidgetProps) {
   const widgetRef = useRef<{ open: () => void; destroy?: () => void } | null>(null);
   // Latest callbacks in refs so the widget is created once, not on every render.
@@ -150,26 +153,15 @@ export function UploadWidget({
 
   if (scriptError) {
     return (
-      <p role="alert" className="text-sm text-red-700">
+      <p role="alert" className="text-sm text-danger">
         The upload tool failed to load. Please refresh the page or check your connection.
       </p>
     );
   }
 
   return (
-    <button
-      type="button"
-      onClick={handleClick}
-      disabled={!isReady}
-      aria-busy={!isReady}
-      className={
-        'rounded-lg bg-indigo-600 px-5 py-3 font-medium text-white hover:bg-indigo-700 ' +
-        'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 ' +
-        'disabled:cursor-wait disabled:bg-stone-400 ' +
-        className
-      }
-    >
-      {isReady ? buttonText : 'Loading…'}
+    <button type="button" onClick={handleClick} disabled={!isReady} aria-busy={!isReady} className={className}>
+      {isReady ? children : 'Loading…'}
     </button>
   );
 }

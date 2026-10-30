@@ -9,6 +9,7 @@ import {
   type FieldErrors,
   type ListingFormValues,
 } from '../lib/validateListing'
+import { buttonPrimary, input, inputInvalid, inputOk } from '../lib/ui'
 import { ErrorState } from './states'
 
 interface Props {
@@ -32,11 +33,6 @@ function initialValues(analysis: AnalyzeResponse): ListingFormValues {
   }
 }
 
-const inputClass = (invalid: boolean) =>
-  `mt-1 block w-full rounded-lg border px-3 py-2 focus-visible:outline-2 focus-visible:outline-indigo-600 ${
-    invalid ? 'border-red-500' : 'border-stone-300'
-  }`
-
 function Field({
   id,
   label,
@@ -56,16 +52,16 @@ function Field({
     <div>
       <label htmlFor={id} className="block text-sm font-medium">
         {label}
-        {required ? <span aria-hidden="true"> *</span> : <span className="font-normal text-stone-500"> (optional)</span>}
+        {required ? <span aria-hidden="true"> *</span> : <span className="font-normal text-muted"> (optional)</span>}
       </label>
       {children}
       {hint && (
-        <p id={`${id}-hint`} className="mt-1 text-sm text-stone-500">
+        <p id={`${id}-hint`} className="mt-1 text-sm text-muted">
           {hint}
         </p>
       )}
       {error && (
-        <p id={`${id}-error`} className="mt-1 text-sm text-red-700">
+        <p id={`${id}-error`} className="mt-1 text-sm text-danger">
           {error}
         </p>
       )}
@@ -89,7 +85,7 @@ export function ListingForm({ upload, analysis, onSubmitted }: Props) {
     onChange: set(key),
     'aria-invalid': Boolean(errors[key]),
     'aria-describedby': [hint ? `${key}-hint` : '', errors[key] ? `${key}-error` : ''].filter(Boolean).join(' ') || undefined,
-    className: inputClass(Boolean(errors[key])),
+    className: `${input} ${errors[key] ? inputInvalid : inputOk}`,
   })
 
   async function handleSubmit(e: FormEvent) {
@@ -180,14 +176,10 @@ export function ListingForm({ upload, analysis, onSubmitted }: Props) {
       )}
       {saveError && <ErrorState message={saveError} />}
 
-      <button
-        type="submit"
-        disabled={saving}
-        className="rounded-lg bg-indigo-600 px-5 py-3 font-medium text-white hover:bg-indigo-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:cursor-wait disabled:bg-stone-400"
-      >
+      <button type="submit" disabled={saving} aria-busy={saving} className={`${buttonPrimary} w-full`}>
         {saving ? 'Submitting…' : 'Submit listing'}
       </button>
-      <p className="text-sm text-stone-500">
+      <p className="text-center text-sm text-muted">
         Your listing will appear once a moderator has reviewed it.
       </p>
     </form>

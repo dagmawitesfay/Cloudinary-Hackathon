@@ -1,5 +1,100 @@
 @import 'tailwindcss';
 
-body {
-  @apply bg-stone-50 text-stone-900 antialiased;
+/* Design tokens: see DESIGN.md. Components use these via Tailwind utilities
+   (bg-surface, text-muted, border-border, bg-accent), never raw colors. */
+:root {
+  color-scheme: dark; /* dark native date/time pickers and scrollbars */
+
+  --bg: #0e0f11;
+  --surface: #1a1c20;
+  --border: rgba(255, 255, 255, 0.08);
+  --accent: #ff6b35;
+  --accent-hover: #ff8355;
+  --text: #f0f0f0;
+  --danger: #f87171;
+  --success: #4ade80;
+
+  /* DESIGN.md specifies #6b7280, which is only 3.5:1 on surface (AA needs 4.5:1
+     for small text). #7c8494 is the same hue, lightened to pass (4.5:1 on
+     surface, 5.1:1 on bg). Swap back only if metadata becomes large text. */
+  --muted: #7c8494;
+
+  /* Added: the 8% border is 1.25:1, too faint to see an input or button edge
+     (WCAG 1.4.11 needs 3:1). Used for form fields and secondary buttons only. */
+  --border-strong: color-mix(in srgb, var(--text) 40%, transparent);
+
+  --font-display: 'Bebas Neue', 'Barlow Condensed', Impact, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-danger: var(--danger);
+  --color-success: var(--success);
+
+  --font-display: var(--font-display);
+  --font-sans: var(--font-body);
+}
+
+@layer base {
+  /* Tailwind v4 borders default to currentColor; use the token instead. */
+  *,
+  ::before,
+  ::after {
+    border-color: var(--border);
+  }
+
+  body {
+    margin: 0;
+    min-width: 320px;
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* One visible focus style for every interactive element. */
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  ::placeholder {
+    color: var(--muted);
+    opacity: 1;
+  }
+
+  ::selection {
+    background: var(--accent);
+    color: var(--bg);
+  }
+}
+
+/* Grain: static SVG noise, 5% opacity, above the page but never intercepting input. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

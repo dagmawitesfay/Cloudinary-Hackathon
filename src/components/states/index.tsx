@@ -1,9 +1,13 @@
 import type { ReactNode } from 'react'
+import { sectionTitle } from '../../lib/ui'
 
 export function Spinner({ label = 'Loading…' }: { label?: string }) {
   return (
-    <div role="status" className="flex items-center justify-center gap-3 py-12 text-stone-600">
-      <span className="h-5 w-5 animate-spin rounded-full border-2 border-stone-300 border-t-indigo-600" />
+    <div role="status" className="flex items-center justify-center gap-3 py-12 text-muted">
+      <span
+        aria-hidden="true"
+        className="h-5 w-5 rounded-full border-2 border-border-strong border-t-accent motion-safe:animate-spin"
+      />
       <span>{label}</span>
     </div>
   )
@@ -11,17 +15,25 @@ export function Spinner({ label = 'Loading…' }: { label?: string }) {
 
 export function EmptyState({ title, children }: { title: string; children?: ReactNode }) {
   return (
-    <div className="rounded-xl border border-dashed border-stone-300 px-6 py-12 text-center">
-      <h2 className="text-lg font-semibold">{title}</h2>
-      {children && <div className="mt-2 text-stone-600">{children}</div>}
+    <div className="rounded-xl border border-dashed border-border-strong px-6 py-12 text-center">
+      <h2 className={sectionTitle}>{title}</h2>
+      {children && <div className="mt-3 text-muted">{children}</div>}
     </div>
   )
 }
 
 export function ErrorState({ message }: { message: string }) {
   return (
-    <div role="alert" className="rounded-xl border border-red-200 bg-red-50 px-6 py-4 text-red-800">
+    <div role="alert" className="rounded-xl border border-danger bg-surface px-4 py-3 text-danger">
       {message}
+    </div>
+  )
+}
+
+export function SuccessAlert({ children }: { children: ReactNode }) {
+  return (
+    <div role="status" className="rounded-xl border border-success bg-surface px-4 py-3 text-success">
+      {children}
     </div>
   )
 }

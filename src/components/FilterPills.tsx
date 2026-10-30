@@ -16,7 +16,7 @@ interface Props {
 export function FilterPills({ label, options, value, onChange }: Props) {
   return (
     <div role="group" aria-label={label} className="flex flex-wrap items-center gap-2">
-      <span className="mr-1 text-sm text-muted">{label}</span>
+      <span className="mr-1 text-xs text-muted">{label}</span>
       {options.map((o) => (
         <button
           key={o.value}

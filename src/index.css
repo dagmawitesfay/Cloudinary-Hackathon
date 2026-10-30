@@ -24,6 +24,9 @@
   --border-strong: color-mix(in srgb, var(--text) 40%, transparent);
 
   --font-display: 'Bebas Neue', 'Barlow Condensed', Impact, sans-serif;
+  /* Browse hero only: a heavier condensed face, plus a pixel face for the small eyebrow label. */
+  --font-hero: 'Barlow Condensed', 'Bebas Neue', Impact, sans-serif;
+  --font-pixel: 'Silkscreen', ui-monospace, monospace;
   --font-body: 'Inter', system-ui, sans-serif;
 }
 
@@ -40,6 +43,8 @@
   --color-success: var(--success);
 
   --font-display: var(--font-display);
+  --font-hero: var(--font-hero);
+  --font-pixel: var(--font-pixel);
   --font-sans: var(--font-body);
 }
 

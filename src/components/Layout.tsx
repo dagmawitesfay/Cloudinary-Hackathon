@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router'
 import { buttonPrimary } from '../lib/ui'
 import { ConfigBanner } from './ConfigBanner'
+import { LogoMark } from './LogoMark'
 
 const navLink = ({ isActive }: { isActive: boolean }) =>
   `rounded-md px-1 py-1 text-sm font-medium underline-offset-8 transition-colors hover:text-muted ${
@@ -25,7 +26,7 @@ export function Layout() {
   }, [pathname])
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col overflow-x-clip">
       <a
         href="#main"
         className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-surface focus:px-4 focus:py-2"
@@ -34,7 +35,8 @@ export function Layout() {
       </a>
       <header className="sticky top-0 z-40 border-b border-border bg-bg/80 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-6 gap-y-2 px-4 py-3">
-          <Link to="/" className="rounded-md font-display text-3xl leading-none tracking-wide">
+          <Link to="/" className="flex items-center gap-2 rounded-md font-display text-3xl leading-none tracking-wide">
+            <LogoMark />
             Flyer Directory
           </Link>
           <nav aria-label="Main" className="flex items-center gap-5">

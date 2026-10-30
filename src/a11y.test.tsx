@@ -8,9 +8,13 @@ import { FilterPills } from './components/FilterPills'
 import { Layout } from './components/Layout'
 import { ListingCard } from './components/ListingCard'
 import { ListingForm } from './components/ListingForm'
+import { HomePage } from './pages/HomePage'
 import type { Listing } from './lib/types'
 
 vi.mock('./lib/listings', () => ({ submitListing: vi.fn() }))
+vi.mock('./hooks/useListings', () => ({
+  useListings: () => ({ loading: false, data: [], error: undefined, retry: () => {} }),
+}))
 
 // Colour contrast is checked separately (jsdom can't compute it); see DESIGN.md notes.
 async function violations(container: HTMLElement) {
@@ -67,6 +71,15 @@ describe('accessibility (axe)', () => {
             <ListingCard listing={listing} />
           </li>
         </ul>
+      </MemoryRouter>,
+    )
+    expect(await violations(container)).toEqual([])
+  })
+
+  it('the Browse hero, search, and filters pass', async () => {
+    const { container } = render(
+      <MemoryRouter>
+        <HomePage />
       </MemoryRouter>,
     )
     expect(await violations(container)).toEqual([])

@@ -61,12 +61,32 @@ export function HomePage() {
 
   return (
     <section>
-      <h1 className="max-w-4xl font-display text-5xl leading-[0.95] tracking-wide sm:text-6xl lg:text-8xl">
-        Find what's happening in your neighborhood.
-      </h1>
-      <p className="mt-4 max-w-2xl text-muted">
-        Clinics, food drives, classes, and community events, from the flyers on your block.
-      </p>
+      <div className="relative isolate">
+        {/* Decorative glow: full-bleed to the top-right of the window, behind the hero. */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -top-28 left-1/2 -z-10 ml-[-50vw] h-[640px] w-screen bg-[radial-gradient(ellipse_at_100%_0%,color-mix(in_srgb,var(--accent)_8%,transparent)_0%,transparent_60%)]"
+        />
+
+        <p className="flex items-center gap-2 font-pixel text-xs uppercase tracking-[0.2em] text-accent">
+          <span aria-hidden="true" className="inline-block h-2 w-2 bg-accent" />
+          Boston · Community flyers
+        </p>
+
+        {/* One real heading. Stacked with block spans; the spaces keep it reading as one sentence. */}
+        <h1 className="mt-5 font-hero text-5xl font-extrabold uppercase leading-[0.86] tracking-tight sm:text-7xl lg:text-8xl">
+          <span className="block">Find what's</span>{' '}
+          <span className="block">happening</span>{' '}
+          <span className="block">
+            near you<span className="text-accent">.</span>
+          </span>
+        </h1>
+
+        <p className="mt-6 max-w-xl text-sm leading-relaxed text-muted">
+          Clinics, food drives, classes, and community events, from the flyers on your block. The free flu clinic, the
+          Saturday ESL class, the church food pantry.
+        </p>
+      </div>
 
       <div className="mt-10 space-y-4">
         <form role="search" onSubmit={(e) => e.preventDefault()}>

@@ -44,3 +44,6 @@ Subtle grain overlay on the background: fixed full-screen pseudo-element with in
 
 ## Don'ts
 No second accent, gradients, or glossy effects. No heavy shadows or neumorphism. No stock-photo heroes or corporate copy. Don't copy any other brand's logos, illustrations, or artwork.
+
+## Browse hero (refinement)
+The Browse hero departs from the rules above on purpose: headline in Barlow Condensed ExtraBold (stacked, line-height ~0.86, tight tracking) with the final period in the accent; a small pixel-font (Silkscreen) uppercase eyebrow with an accent square; compact filter chips (text-xs); a small pixel-grid mark before the wordmark; and one soft accent radial glow (max 8% opacity, top-right, behind the hero only). Everything else, including other pages' headings, stays as specified.

@@ -21,7 +21,7 @@ export const inputInvalid = 'border-danger'
 export const panel = 'rounded-2xl border border-border bg-surface p-6 sm:p-8'
 export const note = 'rounded-xl border border-border bg-surface px-4 py-3 text-sm'
 
-const pill = 'rounded-full border px-4 py-1.5 text-sm font-medium transition-colors'
+const pill = 'rounded-full border px-3 py-1 text-xs font-medium transition-colors'
 export const pillIdle = `${pill} border-border-strong bg-surface text-text hover:border-text`
 /** Active filter: the one accent use on the filter row. */
 export const pillActive = `${pill} border-accent bg-accent text-bg`
